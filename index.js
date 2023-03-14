@@ -21,7 +21,7 @@ function readVideos() {
 }
 
 // Write video upload to JSON file
-function writeVideo(data) {
+function writeVideos(data) {
   const stringifiedData = JSON.stringify(data);
   fs.writeFileSync("./data/video-details.json", stringifiedData);
 }
@@ -32,12 +32,12 @@ app.get("/videos", (req, res) => {
   res.status(200).send(videos);
 });
 
-// GET video
-
+// GET specific video
 app.get("/videos/:id", (req, res) => {
+  const videos = readVideos();
   const id = req.params.id;
   console.log(id);
-  const video = data.find((video) => video.id === id);
+  const video = videos.find((video) => video.id === id);
   if (!video) {
     res.status(404).send("We couldn't find the video in question");
   } else {
@@ -45,7 +45,10 @@ app.get("/videos/:id", (req, res) => {
   }
 });
 
+// POST video
 app.post("/videos", (req, res) => {
+  const videos = readVideos();
+
   const title = req.body.title;
   const description = req.body.description;
 
@@ -67,11 +70,13 @@ app.post("/videos", (req, res) => {
     timestamp: Date.now(),
     comments: [],
   };
-  data.push(newVideo);
-  console.log(data);
+  videos.push(newVideo);
+  writeVideos(videos);
+  console.log(videos);
   res.status(201).send(newVideo);
 });
 
+// START SERVER
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
