@@ -5,7 +5,7 @@ const { v4: uuid } = require("uuid");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 5000;
-const CORS_ORIGIN = process.env.CORS_ORIGIN;
+const CORS_ORIGIN = process.env.ORIGIN;
 
 const app = express();
 
@@ -51,6 +51,7 @@ app.post("/videos", (req, res) => {
 
   const title = req.body.title;
   const description = req.body.description;
+  const image = req.body.image;
 
   if (!title || !description) {
     res.status(400).send("Must have both a title and description");
@@ -61,7 +62,7 @@ app.post("/videos", (req, res) => {
     id: uuid(),
     title,
     channel: "Guest",
-    image: "image",
+    image,
     description,
     views: 0,
     likes: 0,
@@ -75,6 +76,34 @@ app.post("/videos", (req, res) => {
   console.log(videos);
   res.status(201).send(newVideo);
 });
+
+// POST comment
+app.post("/videos/:id/comments", (req, res) => {
+  const videos = readVideos();
+  const id = req.params.id;
+  const video = videos.find((video) => video.id === id);
+
+  const comment = {
+    id: uuid(),
+    name: req.body.name,
+    comment: req.body.comment,
+    likes: 0,
+    timestamp: Date.now(),
+  };
+  video.comments.push(comment);
+  writeVideos(videos);
+
+  res.status(201).send(comment);
+});
+
+// - response body example
+// ```
+// {
+//   "name": "Nigel",
+//   "comment": "This is a test",
+//   "id": 4,
+//   "timestamp": 1531857374673
+// }
 
 // START SERVER
 app.listen(PORT, () => {
