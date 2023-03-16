@@ -36,7 +36,6 @@ app.get("/videos", (req, res) => {
 app.get("/videos/:id", (req, res) => {
   const videos = readVideos();
   const id = req.params.id;
-  console.log(id);
   const video = videos.find((video) => video.id === id);
   if (!video) {
     res.status(404).send("We couldn't find the video in question");
@@ -80,7 +79,7 @@ app.post("/videos", (req, res) => {
 // POST comment
 app.post("/videos/:id/comments", (req, res) => {
   const videos = readVideos();
-  const id = req.params.id;
+  const { id } = req.params;
   const video = videos.find((video) => video.id === id);
 
   const comment = {
@@ -96,14 +95,15 @@ app.post("/videos/:id/comments", (req, res) => {
   res.status(201).send(comment);
 });
 
-// - response body example
-// ```
-// {
-//   "name": "Nigel",
-//   "comment": "This is a test",
-//   "id": 4,
-//   "timestamp": 1531857374673
-// }
+// DELETE comment
+app.delete("/videos/:videoId/comments/:commentId", (req, res) => {
+  const videos = readVideos();
+  const { videoId, commentId } = req.params;
+  const video = videos.find((video) => video.id === videoId);
+  video.comments = video.comments.filter((comment) => comment.id !== commentId);
+  writeVideos(videos);
+  res.status(204).send("Deleted");
+});
 
 // START SERVER
 app.listen(PORT, () => {
