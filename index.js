@@ -29,6 +29,7 @@ function writeVideos(data) {
 // GET /videos
 app.get("/videos", (req, res) => {
   const videos = readVideos();
+  console.log(videos);
   res.status(200).send(videos);
 });
 
@@ -103,6 +104,19 @@ app.delete("/videos/:videoId/comments/:commentId", (req, res) => {
   video.comments = video.comments.filter((comment) => comment.id !== commentId);
   writeVideos(videos);
   res.status(204).send("Deleted");
+});
+
+// LIKE video
+app.put("/videos/:videoId/likes", (req, res) => {
+  const videos = readVideos();
+  const { videoId } = req.params;
+  const video = videos.find((video) => video.id === videoId);
+  let likes = video.likes.split(",");
+  likes[1]++;
+  video.likes = likes.join(",");
+  console.log(video.likes);
+  writeVideos(videos);
+  res.status(200).send("Liked!");
 });
 
 // START SERVER
